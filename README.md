@@ -1,9 +1,11 @@
 # Cat - a plymouth theme
-This is a fork of a lovely [PlymouthTheme-Cat](https://github.com/krishnan793/PlymouthTheme-Cat)
-by [krishnan793](https://github.com/krishnan793). Since I really liked this old
-theme, I decided to improve it a bit. Now the animation differs for booting and
-shutdown modes. After playing some number of frames the animation is seamlessly
-looping.  Lock graphic and code shamlessly borrowed from [plymouth-theme-chain](https://github.com/Hugopikachu/plymouth-theme-chain).
+
+This is a fork of a fork of a fork of the original [PlymouthTheme-Cat](https://github.com/krishnan793/PlymouthTheme-Cat)
+by [krishnan793](https://github.com/krishnan793):
+
+- [derVedro](https://github.com/derVedro/PlymouthTheme-Cat) added distinct animations for boot and shutdown modes with seamless looping
+- [dlgreenwald](https://github.com/dlgreenwald/PlymouthTheme-Cat) added a password prompt
+- This fork redesigns the LUKS password prompt: the cat falls asleep while waiting for the password and wakes up once it is entered
 
 
 <table>
@@ -28,6 +30,20 @@ looping.  Lock graphic and code shamlessly borrowed from [plymouth-theme-chain](
   </tr>
 </table>
 
+
+# NixOS
+
+```nix
+inputs.plymouth-theme-cat.url = "github:cbaconnier/PlymouthTheme-Cat";
+```
+
+```nix
+boot.plymouth = {
+  enable = true;
+  theme = "cat";
+  themePackages = [ inputs.plymouth-theme-cat.packages.${pkgs.stdenv.hostPlatform.system}.default ];
+};
+```
 
 # Installation
 
