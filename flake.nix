@@ -46,8 +46,7 @@
         {
           boot.plymouth = {
             theme = "cat";
-            themePackages = [ self.packages.${pkgs.system}.default ];
-            font = "${pkgs.noto-fonts}/share/fonts/noto/NotoSans.ttf";
+            themePackages = [ self.packages.${pkgs.stdenv.hostPlatform.system}.default ];
           };
         };
     };

@@ -1,10 +1,5 @@
 
 # ----------------------------- Configuration ---------------------------------
-// Font for boot message
-MAIN_FONT = "NotoSans Bold 22";
-
-// Font for password prompt
-SECONDARY_FONT = "NotoSans Regular 16";
 
 // Position of the animation in percentage of the screen dimensions
 LOGO.center.x = 0.5;
@@ -21,10 +16,6 @@ BAR.center.y = 0.7;
 // Position of the status message in percentage of the screen dimensions
 STATUS.center.x = 0.5;
 STATUS.center.y = 0.75;
-
-// Position of the lock icon in percentage of the screen dimensions
-LOCK.center.x = 0.5;
-LOCK.center.y = 0.5;
 
 // Position of the password prompt in percentage of the screen dimensions
 PROMPT.center.x = 0.5;
@@ -50,28 +41,6 @@ Window.SetBackgroundBottomColor (0.08627450980392157, 0.08627450980392157, 0.086
 mode = Plymouth.GetMode();
 #b_debug.sprite.SetImage(Image.Text(mode, 1,1,0));
 
-if (mode == "boot" ||
-    mode == "resume" ||
-    mode == "updates" ||
-    mode == "system-upgrade" ||
-    mode == "firmware-upgrade"){
-    animation.current_frame = WAKEUP_PRE_START;
-animation.loop_start = WAKEUP_LOOP_START;
-animation.loop_end = WAKEUP_LOOP_END;
-    } else {
-        animation.current_frame = ASLEEP_PRE_START;
-        animation.loop_start = ASLEEP_LOOP_START;
-        animation.loop_end = ASLEEP_LOOP_END;
-    }
-
-
-
-    // Password prompt
-    bullets = null;
-    prompt = null;
-    bullet.image = Image.Text("*", 1, 1, 1);
-
-
     // fall asleep animation key frames
     ASLEEP_PRE_START = 38;
     ASLEEP_LOOP_START = 76;
@@ -81,6 +50,25 @@ animation.loop_end = WAKEUP_LOOP_END;
     WAKEUP_PRE_START = 0;
     WAKEUP_LOOP_START = 12;
     WAKEUP_LOOP_END = 49;
+
+    if (mode == "boot" ||
+        mode == "resume" ||
+        mode == "updates" ||
+        mode == "system-upgrade" ||
+        mode == "firmware-upgrade") {
+        animation.current_frame = WAKEUP_PRE_START;
+        animation.loop_start = WAKEUP_LOOP_START;
+        animation.loop_end = WAKEUP_LOOP_END;
+    } else {
+        animation.current_frame = ASLEEP_PRE_START;
+        animation.loop_start = ASLEEP_LOOP_START;
+        animation.loop_end = ASLEEP_LOOP_END;
+    }
+
+    // Password prompt
+    bullets = null;
+    prompt = null;
+    bullet.image = Image.Text("*", 1, 1, 1);
 
     // amount of droping refresh calls to slow down the animation
     SKIP_TICKS = 3;
@@ -138,7 +126,7 @@ animation.loop_end = WAKEUP_LOOP_END;
     else {boot_message.text = mode;}
 
     boot_message.sprite = Sprite();
-    boot_message.image = Image.Text(boot_message.text, 1, 1, 1, 1, MAIN_FONT);
+    boot_message.image = Image.Text(boot_message.text, 1, 1, 1, 1);
     boot_message.sprite.SetImage(boot_message.image);
     boot_message.sprite.SetX(BOOT_MESSAGE.center.x * screen.width - boot_message.image.GetWidth() / 2);
     boot_message.sprite.SetY(BOOT_MESSAGE.center.y * screen.height - boot_message.image.GetHeight() / 2);
@@ -192,7 +180,7 @@ animation.loop_end = WAKEUP_LOOP_END;
     status_message.sprite = Sprite();
 
     fun update_status_callback(status) {
-        status_message.image = Image.Text(status, 1, 1, 1, 1, SECONDARY_FONT);
+        status_message.image = Image.Text(status, 1, 1, 1, 1);
 
         status_message.sprite.SetImage(status_message.image);
         status_message.sprite.SetX(STATUS.center.x * screen.width - status_message.image.GetWidth() / 2);
@@ -210,19 +198,11 @@ animation.loop_end = WAKEUP_LOOP_END;
 
     // Only load password prompt logic in boot sequence
     if (mode == "boot") {
-        // Load and place the lock icon
-        lock.image = Image("lock.png");
-        lock.sprite = Sprite(lock.image);
-        lock.width = lock.image.GetWidth();
-        lock.height = lock.image.GetHeight();
-        lock.sprite.SetX(LOCK.center.x * screen.width - lock.width / 2);
-        lock.sprite.SetY(LOCK.center.y * screen.height  - lock.height / 2);
-
         //Initiate the prompt message string
         //We cannot set the possition now as the image will change in size
         password_prompt.sprite = Sprite();
 
-        // Load and place the password prompt
+        // Load and place the password input box
         prompt.image = Image("input.png");
         prompt.sprite = Sprite(prompt.image);
         prompt.sprite.SetX(BAR.center.x * screen.width - prompt.image.GetWidth() / 2);
@@ -234,7 +214,6 @@ animation.loop_end = WAKEUP_LOOP_END;
 
         // Make password dialog elements invisible
         fun hide_password_screen() {
-            lock.sprite.SetOpacity(0);
             password_prompt.sprite.SetOpacity(0);
             prompt.sprite.SetOpacity(0);
             bullets.sprite.SetOpacity(0);
@@ -242,7 +221,6 @@ animation.loop_end = WAKEUP_LOOP_END;
 
         // Make password dialog elements visible
         fun show_password_screen() {
-            lock.sprite.SetOpacity(1);
             password_prompt.sprite.SetOpacity(1);
             prompt.sprite.SetOpacity(1);
             bullets.sprite.SetOpacity(1);
@@ -251,10 +229,17 @@ animation.loop_end = WAKEUP_LOOP_END;
         fun display_password_callback(prompt, n_bullets) {
             disk_prompt = "Enter the password to unlock the disk";
 
+            // Switch to sleeping animation on first password prompt
+            if (!global.did_sleep) {
+                global.did_sleep = 1;
+                animation.current_frame = ASLEEP_PRE_START;
+                animation.loop_start = ASLEEP_LOOP_START;
+                animation.loop_end = ASLEEP_LOOP_END;
+            }
+
             // Interrupt the normal flow
             global.flow = "password";
             show_password_screen();
-            hide_animation();
             hide_boot_message();
             hide_boot_progress();
 
@@ -265,8 +250,8 @@ animation.loop_end = WAKEUP_LOOP_END;
             // Display placeholder text when necessary
             if (!bullets.string) bullets.string = PROMPT.placeholder;
 
-            bullets.image = Image.Text(bullets.string, 1, 1, 1, 1, SECONDARY_FONT);
-            password_prompt.image = Image.Text(disk_prompt, 1, 1, 1, 1, MAIN_FONT);
+            bullets.image = Image.Text(bullets.string, 1, 1, 1, 1);
+            password_prompt.image = Image.Text(disk_prompt, 1, 1, 1, 1);
 
             //display prompt
             password_prompt.sprite.SetImage(password_prompt.image);
@@ -285,6 +270,12 @@ animation.loop_end = WAKEUP_LOOP_END;
 
     //--------------------------- Normal display (unset all text) ----------------------
     fun display_normal_callback() {
+        if (global.flow == "password" && !global.did_wakeup) {
+            global.did_wakeup = 1;
+            animation.current_frame = WAKEUP_PRE_START;
+            animation.loop_start = WAKEUP_LOOP_START;
+            animation.loop_end = WAKEUP_LOOP_END;
+        }
         global.flow = "run";
         hide_password_screen();
         show_animation();
@@ -302,4 +293,3 @@ animation.loop_end = WAKEUP_LOOP_END;
     fun quit_callback() {}
 
     Plymouth.SetQuitFunction(quit_callback);
-
