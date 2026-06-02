@@ -29,8 +29,8 @@ PROMPT.bullet = "*";
 
 # ------------------------------ Initialization -------------------------------
 // Get screen dimensions
-screen.width = Window.GetWidth(0);
-screen.height = Window.GetHeight(0);
+screen.width = Window.GetWidth();
+screen.height = Window.GetHeight();
 screen.half.width = screen.width / 2;
 screen.half.height = screen.height / 2;
 
