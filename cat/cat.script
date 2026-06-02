@@ -29,10 +29,10 @@ PROMPT.bullet = "*";
 
 # ------------------------------ Initialization -------------------------------
 // Get screen dimensions
-screen.width = Window.GetWidth();
-screen.height = Window.GetHeight();
-screen.half.width = Window.GetWidth(0) / 2;
-screen.half.height = Window.GetHeight(0) / 2;
+screen.width = Window.GetWidth(0);
+screen.height = Window.GetHeight(0);
+screen.half.width = screen.width / 2;
+screen.half.height = screen.height / 2;
 
 // set background to #161616
 Window.SetBackgroundTopColor (0.08627450980392157, 0.08627450980392157, 0.08627450980392157);
@@ -83,9 +83,9 @@ mode = Plymouth.GetMode();
 
     animation.sprite = Sprite();
     animation.sprite.SetPosition(
-        (Window.GetWidth() - animation.images[0].GetWidth()) / 2,
-                                 (Window.GetHeight() - animation.images[0].GetHeight()) / 2,
-                                 0);
+        (screen.width - animation.images[0].GetWidth()) / 2,
+        (screen.height - animation.images[0].GetHeight()) / 2,
+        0);
 
     // some debug sprites, feel free to uncomment and try it
     #animation.frame_counter.sprite = Sprite();
